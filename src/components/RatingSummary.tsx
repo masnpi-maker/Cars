@@ -1,0 +1,1 @@
+import StarRating from './StarRating';export default function RatingSummary({average,count}:{average:number|null;count:number}){return <div className="summary"><StarRating value={Math.round(average||0)}/><span>{count?`${average?.toFixed(1)} · ${count} ${count===1?'įvertinimas':'įvertinimų'}`:'Dar neįvertintas'}</span></div>}

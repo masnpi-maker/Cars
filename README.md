@@ -9,7 +9,7 @@ Responsive React + Vite + TypeScript app for rating the design of ten electric c
 3. Run `npm install`, then `npm run dev`.
 4. Open the local URL Vite prints.
 
-Without Supabase keys, the UI can load but account, catalog, rating, ranking, and admin data cannot work.
+Without Supabase keys, the local ten-car catalog and its supplied photos still work. Sign-in, saved ratings, live rankings, and admin data require Supabase.
 
 ## Supabase setup
 
@@ -53,6 +53,6 @@ The database trigger fires only after an INSERT. Updating an existing user's rat
 - Apply the SQL migrations and use two test accounts to verify that one account cannot access the other's review row or admin data. Use an admin account to confirm dashboard totals and that review insert sends one email while update sends none.
 - Actual Auth, database, and email behavior requires project credentials and a deployed Supabase project; these are not included in this repository.
 
-## Image sources
+## Car photos
 
-Seed records use representative Unsplash-hosted images. Replace the `image_url` values with licensed image URLs or upload approved car photos to a public Supabase Storage bucket for stable production hosting.
+The frontend uses the supplied local `Foto/<car-folder>/0.jpg` file as each car's lead image and loads every numbered image from that car's folder into its detail-page gallery. Vite bundles these local photos into the site, so no Supabase Storage upload is needed.

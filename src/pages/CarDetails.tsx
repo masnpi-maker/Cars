@@ -63,7 +63,7 @@ export default function CarDetails(){
           <StarRating value={rating} onChange={setRating} interactive/>
           <p>Pasirinkite nuo 1 iki 10</p>
           <button className="button-dark" onClick={submit} disabled={!session||rating<1||localOnly}>
-            {localOnly?'Prijunkite Supabase vertinimams':session?'Pateikti įvertinimą':'Prisijunkite, kad vertintumėte'} <span>↗</span>
+            {localOnly?'Vertinti Automobili':session?'Vertinti Automobili':'Prisijunkite, kad vertintumėte'} <span>↗</span>
           </button>
           {msg&&<small className="form-message">{msg}</small>}
         </div>

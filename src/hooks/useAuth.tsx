@@ -10,17 +10,18 @@ export function AuthProvider({children}:{children:ReactNode}){
 
   useEffect(()=>{
     if(!supabase){setLoading(false);return}
+    const client=supabase;
     let active=true;
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,nextSession)=>{
+    const {data:{subscription}}=client.auth.onAuthStateChange((_event,nextSession)=>{
       setSession(nextSession);
       setLoading(false);
     });
 
     async function loadCurrentUser(){
-      const {data:{session:storedSession}}=await supabase.auth.getSession();
+      const {data:{session:storedSession}}=await client.auth.getSession();
       if(!active)return;
       if(!storedSession){setSession(null);setLoading(false);return}
-      const {data:{user}}=await supabase.auth.getUser();
+      const {data:{user}}=await client.auth.getUser();
       if(!active)return;
       setSession(user?{...storedSession,user}:storedSession);
       setLoading(false);

@@ -25,7 +25,9 @@ export default function CarCard({ car, userRating }: { car: Car; userRating?: nu
             <StarRating value={userRating} />
           </div>
         )}
-        <Link to={`/cars/${car.id}`} className="rate-link">Vertinti automobilį <span>↗</span></Link>
+        <Link to={`/cars/${car.id}`} className="rate-link">
+          Vertinti automobilį <span>↗</span>
+        </Link>
       </div>
     </article>
   );

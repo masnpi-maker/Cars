@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowDownRight } from 'lucide-react';
 import CarCard from '../components/CarCard';
 import { getCars } from '../services/cars';
-import { ownRatings } from '../services/userRatings';
+import { ownRatings } from '../services/reviews';
 import { localCars } from '../services/localCars';
 import type { Car } from '../types/database';
 import { configured } from '../services/supabase';
@@ -25,18 +25,13 @@ export default function Home() {
       try {
         catalog = await getCars();
       } catch {
-        if (!cancelled) {
-          setCars(localCars);
-          setUserRatings({});
-        }
+        if (!cancelled) setCars(localCars);
         return;
       }
 
       if (cancelled) return;
       setCars(catalog);
-      if (!userId) {
-        return;
-      }
+      if (!userId) return;
 
       try {
         const ratings = await ownRatings(userId, catalog.map((car) => car.id));

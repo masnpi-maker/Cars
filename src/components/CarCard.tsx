@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import type { Car } from '../types/database';
+import RatingSummary from './RatingSummary';
 import StarRating from './StarRating';
 import { carImage } from '../services/carImages';
 
@@ -16,20 +17,17 @@ export default function CarCard({ car, userRating }: { car: Car; userRating?: nu
           <span>{car.brand}</span>
           <strong>{car.model}</strong>
         </Link>
-        {car.review_count > 0 ? (
-          <div className="summary community-rating">
-            Bendruomenės reitingas: {car.average_rating?.toFixed(1)} · {car.review_count} {car.review_count === 1 ? 'įvertinimas' : 'įvertinimų'}
-          </div>
-        ) : userRating == null ? (
-          <div className="summary">Dar neįvertintas</div>
-        ) : null}
+        <div className="community-rating-label">Bendruomenės įvertinimas</div>
+        <RatingSummary average={car.average_rating} count={car.review_count} />
         {userRating != null && (
           <div className="my-rating">
             <span className="my-rating-label">Jūsų įvertinimas · {userRating}/10</span>
             <StarRating value={userRating} />
           </div>
         )}
-        <Link to={`/cars/${car.id}`} className="rate-link">Vertinti automobilį <span>↗</span></Link>
+        <Link to={`/cars/${car.id}`} className="rate-link">
+          Vertinti automobilį <span>↗</span>
+        </Link>
       </div>
     </article>
   );

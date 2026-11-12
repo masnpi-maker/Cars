@@ -1,9 +1,7 @@
 import StarRating from './StarRating';
 
 export default function RatingSummary({ average, count }: { average: number | null; count: number }) {
-  if (!count) {
-    return <div className="summary"><span>Dar neįvertintas</span></div>;
-  }
+  if (!count) return <div className="summary"><span>Dar neįvertintas</span></div>;
 
   return (
     <div className="summary">

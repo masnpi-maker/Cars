@@ -6,11 +6,10 @@ export default function Navbar() {
   const { session } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const userName =
-    session?.user.user_metadata?.name ||
-    session?.user.user_metadata?.full_name ||
-    session?.user.email?.split('@')[0] ||
-    'Profilis';
+  const userName = session?.user.user_metadata?.name
+    || session?.user.user_metadata?.full_name
+    || session?.user.email?.split('@')[0]
+    || 'Profilis';
 
   function openCatalog(event: React.MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
@@ -37,11 +36,9 @@ export default function Navbar() {
           <NavLink to="/#cars" onClick={openCatalog}>Automobiliai</NavLink>
           <NavLink to="/rankings">Reitingai</NavLink>
           {session ? (
-            <>
-              <button className="nav-login" onClick={() => supabase?.auth.signOut()}>
-                Atsijungti
-              </button>
-            </>
+            <button className="nav-login" onClick={() => supabase?.auth.signOut()}>
+              Atsijungti
+            </button>
           ) : (
             <Link className="nav-login" to="/login">Prisijungti <span>↗</span></Link>
           )}

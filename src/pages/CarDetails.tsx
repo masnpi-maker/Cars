@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react';
-import {Link,useParams} from 'react-router-dom';
+import {Link,useNavigate,useParams} from 'react-router-dom';
 import {ArrowLeft} from 'lucide-react';
 import type {Car,Review} from '../types/database';
 import {getCar} from '../services/cars';
@@ -10,7 +10,7 @@ import RatingSummary from '../components/RatingSummary';
 import {carGallery} from '../services/carImages';
 
 export default function CarDetails(){
-  const {id=''}=useParams(),{session}=useAuth();
+  const {id=''}=useParams(),{session}=useAuth(),navigate=useNavigate();
   const [car,setCar]=useState<Car|null>(null);
   const [review,setReview]=useState<Review|null>(null);
   const [rating,setRating]=useState(0);
@@ -32,8 +32,7 @@ export default function CarDetails(){
   async function submit(){
     try{
       await saveRating(id,rating);
-      setMsg('Įvertinimas sėkmingai pateiktas.');
-      await load();
+      navigate('/');
     }catch(e){setMsg((e as Error).message)}
   }
 

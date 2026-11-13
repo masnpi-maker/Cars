@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {Link} from 'react-router-dom';
+﻿import {useState} from 'react';
+import {Link,useNavigate} from 'react-router-dom';
 import {supabase} from '../services/supabase';
 
 export default function Register(){
@@ -7,6 +7,7 @@ export default function Register(){
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
   const [msg,setMsg]=useState('');
+  const navigate=useNavigate();
 
   async function submit(e:React.FormEvent){
     e.preventDefault();
@@ -17,9 +18,8 @@ export default function Register(){
       options:{data:{username:username.trim(),name:username.trim()}},
     });
     if(error){setMsg(error.message);return}
-    setMsg(data.session
-      ? 'Paskyra sukurta. Dabar galite prisijungti.'
-      : 'Patvirtinimo nuoroda išsiųsta į jūsų el. paštą.');
+    if(data.session){navigate('/');return}
+    setMsg('Patvirtinimo nuoroda išsiųsta į jūsų el. paštą. Patvirtinkite adresą, kad galėtumėte prisijungti.');
   }
 
   return <main className="auth-page"><form className="auth-card" onSubmit={submit}>

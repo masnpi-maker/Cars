@@ -1,58 +1,113 @@
-# CarDesign Rating
+# Car Design Rating
 
-Responsive React + Vite + TypeScript app for rating the design of ten electric cars. Supabase provides authentication, PostgreSQL storage, RLS, aggregate ratings, protected admin RPCs, and an Edge Function email notification sent through Resend.
+Lietuviška elektromobilių dizaino vertinimo aplikacija. Lankytojai gali peržiūrėti dešimties automobilių katalogą, atverti nuotraukų galerijas ir palyginti bendruomenės įvertinimus. Prisijungę vartotojai gali skirti automobiliui balą nuo 1 iki 10, o administratorius – peržiūrėti projekto statistiką.
 
-## Run locally
+## Funkcijos
 
-1. Install Node.js 20+ and npm.
-2. Copy `.env.example` to `.env` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from Supabase **Project Settings → API**.
-3. Run `npm install`, then `npm run dev`.
-4. Open the local URL Vite prints.
+- Dešimties elektromobilių katalogas su nuotraukomis iš `Foto/` aplanko.
+- Atskirų automobilių puslapiai su nuotraukų galerija ir įvertinimo forma.
+- Bendruomenės reitingai pagal įvertinimų vidurkį.
+- Registracija, prisijungimas ir vartotojo profilis.
+- Administravimo skydelis su vartotojų, įvertinimų ir automobilių statistika.
+- Pasirenkami el. pašto pranešimai administratoriui apie naują įvertinimą.
 
-Without Supabase keys, the local ten-car catalog and its supplied photos still work. Sign-in, saved ratings, live rankings, and admin data require Supabase.
+## Technologijos
 
-## Supabase setup
+- React 18, TypeScript ir Vite
+- React Router
+- Tailwind CSS
+- Supabase Auth ir PostgreSQL
+- Supabase Edge Functions ir Resend el. laiškams
 
-1. Create a Supabase project.
-2. Apply `supabase/migrations/202611110001_initial.sql` in the SQL Editor (or link the project with the Supabase CLI and run `supabase db push`). This creates the cars and reviews tables, RLS, aggregate view, admin role table, admin RPCs, indexes, and the ten seed cars.
-3. Register your account in the app, then assign it the admin role in SQL Editor:
+## Paleidimas lokaliai
+
+Reikalingas Node.js 20 arba naujesnis ir npm.
+
+1. Įdiekite priklausomybes:
+
+   ```sh
+   npm install
+   ```
+
+2. Nukopijuokite `.env.example` į `.env` ir įrašykite Supabase projekto URL bei viešą anoniminį raktą:
+
+   ```env
+   VITE_SUPABASE_URL=https://jusu-projektas.supabase.co
+   VITE_SUPABASE_ANON_KEY=jusu-anoniminis-raktas
+   ```
+
+   Šiuos duomenis rasite Supabase projekto API nustatymuose. Nenaudokite `service_role` rakto naršyklės aplikacijoje.
+
+3. Paleiskite kūrimo serverį:
+
+   ```sh
+   npm run dev
+   ```
+
+   Atverkite terminale nurodytą vietinį adresą.
+
+Be Supabase konfigūracijos veikia vietinis automobilių katalogas ir nuotraukos. Prisijungimui, įvertinimų išsaugojimui, reitingams ir administravimo skydeliui reikalingas sukonfigūruotas Supabase projektas.
+
+## Supabase konfigūravimas
+
+1. Sukurkite Supabase projektą ir įsitikinkite, kad `.env` faile nustatyti `VITE_SUPABASE_URL` bei `VITE_SUPABASE_ANON_KEY`.
+2. Supabase SQL redaktoriuje paleiskite `supabase/migrations/202611110001_initial.sql`. Migracija sukuria automobilių ir įvertinimų lenteles, prieigos taisykles (RLS), reitingų suvestinę, administratoriaus funkcijas ir dešimties automobilių įrašus.
+3. Užregistruokite vartotoją aplikacijoje. Jei reikia administratoriaus, SQL redaktoriuje priskirkite rolę savo paskyrai, pakeitę el. paštą:
 
    ```sql
-   insert into public.user_roles(user_id, role)
-   select id, 'admin' from auth.users where email = 'you@example.com'
+   insert into public.user_roles (user_id, role)
+   select id, 'admin'
+   from auth.users
+   where email = 'jus@example.com'
    on conflict (user_id) do update set role = excluded.role;
    ```
 
-   Admin status is checked by the `is_admin()` security-definer function and `admin_dashboard()` checks authorization again on the server. Users cannot grant themselves a role.
-4. In Authentication → URL Configuration, set the local and deployed app URLs. Email confirmation can be enabled in Supabase Auth settings.
+   Administratoriaus prieiga tikrinama duomenų bazėje. Vartotojai negali patys sau suteikti šios rolės.
+4. Supabase Authentication URL nustatymuose įrašykite vietinės ir paskelbtos aplikacijos adresus. El. pašto patvirtinimą galite valdyti Supabase Auth nustatymuose.
 
-### Email notifications
+### El. pašto pranešimai (pasirinktinai)
 
-1. Deploy the Edge Function: `supabase functions deploy notify-new-review`. The function disables platform JWT verification and checks a separate shared webhook secret header instead.
-2. Set the function secrets (never put these in `.env`):
+1. Įdiekite Supabase CLI ir įdiekite funkciją:
 
    ```sh
-   supabase secrets set RESEND_API_KEY=re_... ADMIN_EMAIL=admin@example.com REVIEW_WEBHOOK_SECRET=<long-random-secret>
+   supabase functions deploy notify-new-review
    ```
 
-   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are available to deployed Edge Functions in Supabase. The service key is only used server-side to look up the car name.
-3. Enable the Vault and `pg_net` extensions if the project has not enabled them. Add two Vault secrets named `project_url` (the project URL, such as `https://abc.supabase.co`) and `review_webhook_secret` (the same random secret used for `REVIEW_WEBHOOK_SECRET`). Then apply `supabase/migrations/202611110002_review_notification.sql`.
+2. Nustatykite funkcijos paslaptis. Toliau pateiktas reikšmes pakeiskite savomis:
 
-The database trigger fires only after an INSERT. Updating an existing user's rating does not send another email. The Edge Function rejects requests without the shared webhook secret.
+   ```sh
+   supabase secrets set RESEND_API_KEY=re_... ADMIN_EMAIL=admin@example.com REVIEW_WEBHOOK_SECRET=ilgas-atsitiktinis-raktas
+   ```
 
-## Security and data model
+   Šių reikšmių nedėkite į `VITE_` kintamuosius ar į naršyklės kodą. `SUPABASE_URL` ir `SUPABASE_SERVICE_ROLE_KEY` funkcijai pateikia Supabase aplinka.
+3. Įjunkite `Vault` ir `pg_net` plėtinius, jei jie dar neįjungti. `Vault` sukurkite paslaptis `project_url` (Supabase projekto URL) ir `review_webhook_secret` (tą pačią reikšmę kaip `REVIEW_WEBHOOK_SECRET`).
+4. Paleiskite `supabase/migrations/202611110002_review_notification.sql`.
 
-- Cars and `car_rating_summary` are publicly readable. Cars have no client write policies.
-- Review rows are readable only by their owner; public clients receive aggregate counts and averages through the view.
-- Review inserts and updates require `auth.uid() = user_id`. The database enforces integer ratings 1–10 and one row per user/car; the app uses an upsert for repeat ratings.
-- Admin dashboard access is protected by server-side role checks. To revoke access, delete the user's row from `public.user_roles`.
+Pranešimas siunčiamas tik sukūrus naują įvertinimą. Atnaujinus jau esamą to paties vartotojo įvertinimą, el. laiškas nesiunčiamas.
 
-## Checks
+## Nuotraukos
 
-- `npm run build` runs TypeScript checking and a Vite production build.
-- Apply the SQL migrations and use two test accounts to verify that one account cannot access the other's review row or admin data. Use an admin account to confirm dashboard totals and that review insert sends one email while update sends none.
-- Actual Auth, database, and email behavior requires project credentials and a deployed Supabase project; these are not included in this repository.
+Kiekvieno automobilio nuotraukos laikomos atskirame `Foto/` pakatalogyje. `0.jpg` naudojama kaip pagrindinė nuotrauka, o kataloge esančios sunumeruotos nuotraukos rodomos automobilio galerijoje. Vite šiuos failus įtraukia į svetainės paketą; nuotraukoms nereikia Supabase Storage.
 
-## Car photos
+## Projekto komandos
 
-The frontend uses the supplied local `Foto/<car-folder>/0.jpg` file as each car's lead image and loads every numbered image from that car's folder into its detail-page gallery. Vite bundles these local photos into the site, so no Supabase Storage upload is needed.
+```sh
+npm run dev      # paleisti kūrimo serverį
+npm run build    # patikrinti TypeScript ir sukurti produkcinį paketą
+npm run preview  # peržiūrėti produkcinį paketą lokaliai
+```
+
+## Struktūra
+
+```text
+src/
+  components/    bendri vartotojo sąsajos komponentai
+  hooks/         autentifikacijos kontekstas
+  pages/         katalogo, automobilio, reitingų ir paskyrų puslapiai
+  services/      Supabase, automobilių, nuotraukų ir įvertinimų logika
+  types/         duomenų tipai
+supabase/
+  functions/     Edge Function el. pašto pranešimams
+  migrations/    duomenų bazės schemos ir funkcijų migracijos
+Foto/            automobilių nuotraukos
+```
